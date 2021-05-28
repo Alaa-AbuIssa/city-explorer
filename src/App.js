@@ -1,83 +1,108 @@
-import axios from 'axios';
 import React from 'react';
-import { Form, Button } from 'react-bootstrap';
-import Image from 'react-bootstrap/Image'
-import './App.css'
+import axios from 'axios';
+import Weather from './component/weather'
 
+class App extends React.Component{
+ constructor(props){
+   super(props);
+   this.state = {
+    searchUrl : '',
+    nameLocation:'',
+    showResult : false ,
+    errorMessage:false ,
+    weatherResult:false ,
+    weatherInfo:{},
+   }
+ }
 
+  getexplorer= async(ev) =>{
+    ev.preventDefault();
+    let urlForSearch= `https://eu1.locationiq.com/v1/search.php?key=pk.8917af52731848f6b221fa3294f98d21&q=${this.state.searchUrl}&format=json`;
 
-export class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      location: '',
-      data: '',
-      show: false
-    }
-  }
+      let serverWeather= process.env.REACT_APP_SERVER;
 
-  updateLocation = (event) => {
-    event.preventDefault();
-    this.setState({
-      location: event.target.value
-    })
-  }
+      let weatherUrl=`${serverWeather}/weather?cityname=${this.state.searchUrl}`
+   try {
 
-  locationData = async (event) => {
-    event.preventDefault();
+     let result = await axios.get(urlForSearch);
+     let weatherData = await axios.get(weatherUrl)
+     console.log(result.data[0]);
+     
+     this.setState({
+       nameLocation : result.data[0],
+       showResult : true,
+       weatherResult:true ,
+       weatherInfo:weatherData.data,
 
-    try {
-      this.setState({ show: true })
-      const locationurl = `https://us1.locationiq.com/v1/search.php?key=pk.8776f995fd36c562b2158fb09706895f&q=${this.state.location}&format=json`;
-      const responseData = await axios.get(locationurl);
-      this.setState({ data: responseData.data[0] })
-    }
-    catch (event) {
+       
+      })
+      console.log(this.state.nameLocation);
+      console.log(this.state.weatherInfo);
+    } 
+    catch {
       this.setState({
-        show: false
-      });
+        showResult:false,
+        errorMessage:true,
+        weatherResult:false ,
+
+      })
     }
   }
+  changeSearchUrl =(event)=>{
+    this.setState({
+      searchUrl: event.target.value,
+      
+    })
+    
+    console.log(this.state.searchUrl);
+  }
 
-
-  render() {
-    if (this.state.show === true) {
-      return (
-        <div>
-          <h2>City Explorer</h2>
-          <Form>
-            <Form.Label>Where would you like to explore?</Form.Label>
-            <br></br>
-            <br></br>
-            <Form.Control type="text" placeholder="input location here…" onChange={this.updateLocation} />
-            <br></br>
-            <br></br>
-
-            <Button type="submit" onClick={this.locationData}>Explore!</Button>
-          </Form>
-          <p>Welcome to {this.state.data.display_name} is located at {this.state.data.lat} by {this.state.data.lon}</p>
-          <Image src={`https://maps.locationiq.com/v3/staticmap?key=pk.8917af52731848f6b221fa3294f98d21&center=${this.state.data.lat},${this.state.data.lon}`} />
-          <p id='footer'>&copy;</p>
-        </div>
-      )
-    } else {
-      return(
+  render(){
+    return(
+      <>
+      <h1> City Explorer</h1>
+      
+      <form onSubmit={this.getexplorer}>
+        <input type='text' placeholder='type a city' onChange= {this.changeSearchUrl}/>
+         <input type='submit' value='Explore'/>
+      </form>
       <div>
-      <h2>City Explorer</h2>
-      <Form>
-        <Form.Label>Pleace Enter the Location Name that you want to search for !</Form.Label>
-        <br></br>
-        <Form.Control type="text" placeholder="Enter your location here…" onChange={this.updateLocation} />
-        <br></br>
-        <Button type="submit" onClick={this.locationData}>Explore!</Button>
-      </Form>
-      <p>Ops!!! Location not found !</p>
-      <p id='footer'>&copy;Alaa Abu-Issa</p>
+      {this.state.showResult
+         &&<p>
+         Name: {this.state.nameLocation.display_name}
+        </p>}
+        {this.state.showResult
+         && <p>
+        latitude:{this.state.nameLocation.lat}
+        </p>} 
+        {this.state.showResult
+         && <p>
+        longitude: {this.state.nameLocation.lon}
+        </p>}
+        {this.state.showResult
+         &&
+        <img src ={`https://maps.locationiq.com/v3/staticmap?key=pk.8917af52731848f6b221fa3294f98d21&center=${this.state.nameLocation.lat},${this.state.nameLocation.lon}&zoom=1-18`}/>
+      }
+          {this.state.errorMessage &&
+        <p>  "error": "Unable to geocode" </p>
+      } 
       </div>
-      )
-    }
+      {
+      this.state.weatherResult && 
+         <Weather nameOfCity={this.state.searchUrl}
+          weatherInfo={this.state.weatherInfo} />
+        
+      }
+      </>
+    )
   }
 }
 export default App;
+
+
+
+
+
+
 
 
