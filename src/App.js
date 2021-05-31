@@ -1,108 +1,86 @@
-import React from 'react';
+import react from 'react';
 import axios from 'axios';
 import Weather from './component/weather'
+import Movies from './component/movies'
 
-class App extends React.Component{
- constructor(props){
-   super(props);
-   this.state = {
-    searchUrl : '',
-    nameLocation:'',
-    showResult : false ,
-    errorMessage:false ,
-    weatherResult:false ,
-    weatherInfo:{},
-   }
- }
+class App extends react.Component {
 
-  getexplorer= async(ev) =>{
-    ev.preventDefault();
-    let urlForSearch= `https://eu1.locationiq.com/v1/search.php?key=pk.8917af52731848f6b221fa3294f98d21&q=${this.state.searchUrl}&format=json`;
+  constructor(props) {
+    super(props);
+    this.state = {
+      city: '',
+      result: '',
+      displayMap: false,
+      errorMessage: false
+    }
+  }
 
-      let serverWeather= process.env.REACT_APP_SERVER;
+  updateValue = (event) => {
+    this.setState({
+      city: event.target.value
+    })
+    console.log(this.state.city);
+  }
 
-      let weatherUrl=`${serverWeather}/weather?cityname=${this.state.searchUrl}`
-   try {
+  getLocation = async (e) => {
+    e.preventDefault();
 
-     let result = await axios.get(urlForSearch);
-     let weatherData = await axios.get(weatherUrl)
-     console.log(result.data[0]);
-     
-     this.setState({
-       nameLocation : result.data[0],
-       showResult : true,
-       weatherResult:true ,
-       weatherInfo:weatherData.data,
+ 
+    let url = `https://eu1.locationiq.com/v1/search.php?key=pk.8b89beb044f7bff265b36ceb931a413c&q=${this.state.city}&format=json`;
 
-       
-      })
-      console.log(this.state.nameLocation);
-      console.log(this.state.weatherInfo);
-    } 
-    catch {
+    try {
+      let result = await axios.get(url);
+      console.log(result.data[0]);
+
+
       this.setState({
-        showResult:false,
-        errorMessage:true,
-        weatherResult:false ,
-
+        result: result.data[0],
+        displayMap: true
+      })
+    } catch {
+      this.setState({
+        displayMap: false,
+        errorMessage: true
       })
     }
   }
-  changeSearchUrl =(event)=>{
-    this.setState({
-      searchUrl: event.target.value,
-      
-    })
-    
-    console.log(this.state.searchUrl);
-  }
 
-  render(){
-    return(
+
+  render() {
+    return (
       <>
-      <h1> City Explorer</h1>
-      
-      <form onSubmit={this.getexplorer}>
-        <input type='text' placeholder='type a city' onChange= {this.changeSearchUrl}/>
-         <input type='submit' value='Explore'/>
-      </form>
-      <div>
-      {this.state.showResult
-         &&<p>
-         Name: {this.state.nameLocation.display_name}
-        </p>}
-        {this.state.showResult
-         && <p>
-        latitude:{this.state.nameLocation.lat}
-        </p>} 
-        {this.state.showResult
-         && <p>
-        longitude: {this.state.nameLocation.lon}
-        </p>}
-        {this.state.showResult
-         &&
-        <img src ={`https://maps.locationiq.com/v3/staticmap?key=pk.8917af52731848f6b221fa3294f98d21&center=${this.state.nameLocation.lat},${this.state.nameLocation.lon}&zoom=1-18`}/>
-      }
-          {this.state.errorMessage &&
-        <p>  "error": "Unable to geocode" </p>
-      } 
-      </div>
-      {
-      this.state.weatherResult && 
-         <Weather nameOfCity={this.state.searchUrl}
-          weatherInfo={this.state.weatherInfo} />
-        
-      }
+        <h1>City Explorer</h1>
+        <form onSubmit={this.getLocation}>
+          <input type='text' placeholder='add a city' onChange={this.updateValue} />
+          <button type='submit'>Explore!</button>
+        </form>
+
+        {this.state.displayMap &&
+          <p>City: {this.state.result.display_name}</p>
+        }
+        {this.state.displayMap &&
+          <p>Latitude: {this.state.result.lat}</p>
+        }
+        {this.state.displayMap &&
+          <p>Longitude: {this.state.result.lon}</p>
+        }
+
+        {this.state.displayMap &&
+          <img src={`https://maps.locationiq.com/v3/staticmap?key=pk.2755a236f4cbc8df7b0076e7519c870b&center=${this.state.result.lat},${this.state.result.lon}`} alt='' />
+        }
+
+        {this.state.errorMessage &&
+          <p>City not Found</p>
+        }
+
+        {this.state.displayMap &&
+          <Weather city={this.state.city} displayMap={this.state.displayMap}></Weather>
+        }
+        {this.state.displayMap &&
+          <Movies city={this.state.city} displayMap={this.state.displayMap}></Movies>
+        }
       </>
     )
   }
 }
 export default App;
-
-
-
-
-
-
-
-
