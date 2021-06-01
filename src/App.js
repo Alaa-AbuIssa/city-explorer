@@ -1,7 +1,7 @@
-import react from 'react';
+  import react from 'react';
 import axios from 'axios';
-import Weather from './component/weather'
-import Movies from './component/movies'
+import Weather from './weather'
+import Movies from './movies'
 
 class App extends react.Component {
 
@@ -25,8 +25,8 @@ class App extends react.Component {
   getLocation = async (e) => {
     e.preventDefault();
 
- 
-    let url = `https://eu1.locationiq.com/v1/search.php?key=pk.8b89beb044f7bff265b36ceb931a413c&q=${this.state.city}&format=json`;
+    
+    let url = `https://eu1.locationiq.com/v1/search.php?key=pk.8917af52731848f6b221fa3294f98d21&q=${this.state.city}&format=json`;
 
     try {
       let result = await axios.get(url);
@@ -66,7 +66,7 @@ class App extends react.Component {
         }
 
         {this.state.displayMap &&
-          <img src={`https://maps.locationiq.com/v3/staticmap?key=pk.2755a236f4cbc8df7b0076e7519c870b&center=${this.state.result.lat},${this.state.result.lon}`} alt='' />
+          <img src={`https://maps.locationiq.com/v3/staticmap?key=pk.8917af52731848f6b221fa3294f98d21&center=${this.state.result.lat},${this.state.result.lon}`} alt='' />
         }
 
         {this.state.errorMessage &&

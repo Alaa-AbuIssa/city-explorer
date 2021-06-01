@@ -14,12 +14,9 @@ class Weather extends react.Component {
         }
     }
 
-
-
-    // lab08
-    // http://localhost:3006/weather?city=zarqa
+    // http://localhost:3001/weather?city=amman
     getWeather = async () => {
-        console.log('inside function');
+        // console.log('inside function');
         let serverRoute = process.env.REACT_APP_SERVER;
         const resultArray = await axios.get(`${serverRoute}/weather?city=${this.props.city}`)
 
