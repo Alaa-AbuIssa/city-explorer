@@ -16,9 +16,8 @@ class Movies extends react.Component {
         }
     }
 
-    // http://localhost:3006/movies?city=zarqa
+    // http://localhost:3001/movies?city=amman
     getMovies = async () => {
-        console.log('inside function');
         let serverRoute = process.env.REACT_APP_SERVER;
         const resultArray = await axios.get(`${serverRoute}/movies?city=${this.props.city}`)
 
